@@ -1,4 +1,4 @@
-import InputHandler from "./InputHandler";
+import InputHandler from "./inputHandler";
 import Grid, { Map } from "./grid";
 import permute from "./permute";
 

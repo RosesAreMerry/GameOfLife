@@ -43,15 +43,13 @@ export default class InputHandler {
     canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
     canvas.addEventListener('contextmenu', this.onContextMenu.bind(this));
     canvas.addEventListener('wheel', this.onWheel.bind(this));
-    window.addEventListener('keypress', this.onKeyPress.bind(this));
+    window.addEventListener('keydown', this.onKeyPress.bind(this));
     window.addEventListener('resize', this.onResize.bind(this));
   }
 
   onMouseDown(event: MouseEvent) {
     this.mouseIsDown = true;
     if (event.buttons === 1 || event.button === 2) {
-      console.log(event.buttons)
-      console.log("here")
       this.placeCell(event.buttons === 1, event.clientX, event.clientY);
       this.redraw();
     }
@@ -89,13 +87,13 @@ export default class InputHandler {
       case ' ':
         this.pause();
         break;
-      case 'ArrowRight':
+      case 'ArrowUp':
         this.step();
         break;
-      case 'ArrowUp':
+      case 'ArrowRight':
         this.speedUp();
         break;
-      case 'ArrowDown':
+      case 'ArrowLeft':
         this.slowDown();
         break;
       case 'w':
