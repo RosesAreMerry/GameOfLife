@@ -20,10 +20,14 @@ function onWheel(event: WheelEvent) {
 
   if (grid.currentZoom < 10) {
     grid.currentZoom = 10;
+    grid.draw(currentBlocks);
+    return;
   }
 
-  if (grid.currentZoom > 100) {
-    grid.currentZoom = 100;
+  if (grid.currentZoom > 300) {
+    grid.currentZoom = 300;
+    grid.draw(currentBlocks);
+    return;
   }
   
   const centerX = event.clientX;
