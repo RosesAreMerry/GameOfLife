@@ -42,16 +42,11 @@ function zoom(x: number, y: number, dz: number) {
   // Since the zoom is done in scale with x, we need to adjust the y value to keep the zoom centered
   const yAdjustment = canvas.height / canvas.width;
 
-  console.log(yAdjustment);
-
-
   const xTravel = scrollTravel * xBias;
   const yTravel = scrollTravel * yBias * yAdjustment;
 
   grid.currentX += xTravel;
   grid.currentY += yTravel;
-
-  grid.draw(currentBlocks);
 }
 
 function pan(dx: number, dy: number) {

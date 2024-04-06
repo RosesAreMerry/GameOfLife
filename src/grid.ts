@@ -6,12 +6,25 @@ export default class Grid {
   currentY: number = 0;
   currentZoom: number = 20;
 
+  lastX: number = this.currentX;
+  lastY: number = this.currentY;
+  lastZoom: number = this.currentZoom;
+
+  lastBlocks: Map = {};
+
   constructor(context: CanvasRenderingContext2D) {
     this.context = context;
   }
 
   draw(currentBlocks: Map) {
-    //draw the grid
+    if (this.currentX === this.lastX && this.currentY === this.lastY && this.currentZoom === this.lastZoom && currentBlocks === this.lastBlocks) {
+      return;
+    }
+    this.drawGrid();
+    this.drawBlocks(currentBlocks);
+  }
+
+  drawGrid() {
     const ctx = this.context;
     // clear the canvas
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -22,7 +35,6 @@ export default class Grid {
     
     // the width of each grid cell
     const gridSize = ctx.canvas.width / this.currentZoom;
-
 
     const xOffset = (this.currentX % 1) * gridSize;
     const yOffset = (this.currentY % 1) * gridSize;
@@ -37,23 +49,38 @@ export default class Grid {
       ctx.lineTo(ctx.canvas.width, y);
     }
     ctx.stroke();
+  }
 
-    // draw the blocks
+  drawBlocks(currentBlocks: Map) {
+    const ctx = this.context;
 
     ctx.beginPath();
-    ctx.lineWidth = 1;
     ctx.strokeStyle = 'white';
 
-    for (let x = xOffset - gridSize; x < ctx.canvas.width + gridSize; x += gridSize) {
-      for (let y = yOffset - gridSize; y < ctx.canvas.height + gridSize; y += gridSize) {
-        ctx.moveTo(x, y);
-        if (currentBlocks[`${Math.floor(x / gridSize - this.currentX + 0.01)},${Math.floor(y / gridSize - this.currentY + 0.01)}`]) {
-          ctx.fillStyle = 'white';
-          ctx.fillRect(x, y, gridSize, gridSize);
-          ctx.strokeRect(x, y, gridSize, gridSize);
-        }
-      }
+    const gridSize = ctx.canvas.width / this.currentZoom;
+
+    // for (let x = xOffset - gridSize; x < ctx.canvas.width + gridSize; x += gridSize) {
+    //   for (let y = yOffset - gridSize; y < ctx.canvas.height + gridSize; y += gridSize) {
+    //     if (currentBlocks[`${Math.floor(x / gridSize - this.currentX + 0.01)},${Math.floor(y / gridSize - this.currentY + 0.01)}`]) {
+    //       ctx.fillStyle = 'white';
+    //       ctx.moveTo(x, y);
+    //       ctx.fillRect(x, y, gridSize, gridSize);
+    //       ctx.strokeRect(x, y, gridSize, gridSize);
+    //     }
+    //   }
+    // }
+
+    for (const [key, value] of Object.entries(currentBlocks)) {
+      const [x, y] = key.split(',').map(Number);
+      const xCoord = (x + this.currentX) * gridSize;
+      const yCoord = (y + this.currentY) * gridSize;
+
+      ctx.fillStyle = 'white';
+      ctx.moveTo(xCoord, yCoord);
+      ctx.fillRect(xCoord, yCoord, gridSize, gridSize);
+      ctx.strokeRect(xCoord, yCoord, gridSize, gridSize);
     }
+
     ctx.fill();
     ctx.stroke();
   }
