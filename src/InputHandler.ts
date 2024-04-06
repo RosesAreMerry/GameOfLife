@@ -98,6 +98,22 @@ export default class InputHandler {
       case 'ArrowDown':
         this.slowDown();
         break;
+      case 'w':
+        this.pan(0, 100);
+        this.redraw();
+        break;
+      case 'a':
+        this.pan(100, 0);
+        this.redraw();
+        break;
+      case 's':
+        this.pan(0, -100);
+        this.redraw();
+        break;
+      case 'd':
+        this.pan(-100, 0);
+        this.redraw();
+        break;
     }
   }
 
