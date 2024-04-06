@@ -1,3 +1,4 @@
+import InputHandler from "./InputHandler";
 import Grid, { Map } from "./grid";
 import permute from "./permute";
 
@@ -10,12 +11,13 @@ ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
 const grid = new Grid(ctx);
 
+
 let currentBlocks: Map = {};
 
 grid.draw(currentBlocks);
 
-function onWheel(event: WheelEvent) {
-  const scrollTravel = event.deltaY * scrollScale;
+function zoom(x: number, y: number, dz: number) {
+  const scrollTravel = dz * scrollScale;
   grid.currentZoom += scrollTravel;
 
   if (grid.currentZoom < 10) {
@@ -30,8 +32,8 @@ function onWheel(event: WheelEvent) {
     return;
   }
   
-  const mouseX = event.clientX;
-  const mouseY = event.clientY;
+  const mouseX = x;
+  const mouseY = y;
 
 
   const xBias = mouseX / canvas.width;
@@ -52,42 +54,23 @@ function onWheel(event: WheelEvent) {
   grid.draw(currentBlocks);
 }
 
-function onClick(event: MouseEvent) {
-  const x = event.clientX;
-  const y = event.clientY;
+function pan(dx: number, dy: number) {
+  const gridSize = ctx.canvas.width / grid.currentZoom;
+  grid.currentX += dx / gridSize;
+  grid.currentY += dy / gridSize;
+}
 
+function placeCell(alive: boolean, x: number, y: number) {
   const gridSize = ctx.canvas.width / grid.currentZoom;
 
   const xBlock = Math.floor((x / gridSize - grid.currentX + 0.01));
   const yBlock = Math.floor((y / gridSize - grid.currentY + 0.01));
 
-  currentBlocks[`${xBlock},${yBlock}`] = true;
-
-
-  grid.draw(currentBlocks);
-  permute(currentBlocks)
-}
-
-function onContextMenu(event: MouseEvent) {
-  event.preventDefault();
-  const x = event.clientX;
-  const y = event.clientY;
-
-  const gridSize = ctx.canvas.width / grid.currentZoom;
-
-  const xBlock = Math.floor((x / gridSize - grid.currentX + 0.01));
-  const yBlock = Math.floor((y / gridSize - grid.currentY + 0.01));
-
-  delete currentBlocks[`${xBlock},${yBlock}`];
-
-  grid.draw(currentBlocks);
-}
-
-function onResize() {
-  ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
-  
-  grid.draw(currentBlocks);
+  if (alive) {
+    currentBlocks[`${xBlock},${yBlock}`] = true;
+  } else {
+    delete currentBlocks[`${xBlock},${yBlock}`];
+  }
 }
 
 
@@ -99,36 +82,42 @@ function permuteBlocks() {
 let interval: NodeJS.Timeout;
 let speed = 250;
 
-function onKey(evt: KeyboardEvent) {
-  if (evt.key == ' ') {
-    if (interval) {
-      clearInterval(interval);
-      interval = null;
-    } else {
-      interval = setInterval(permuteBlocks, speed);
-    }
-  }
-  if (evt.key == 'ArrowRight') {
-    speed *= 0.5;
+function pause() { 
+  if (interval) {
     clearInterval(interval);
+    interval = null;
+  } else {
     interval = setInterval(permuteBlocks, speed);
-    console.log(speed);
-  }
-  if (evt.key == 'ArrowLeft') {
-    speed *= 2;
-    clearInterval(interval);
-    interval = setInterval(permuteBlocks, speed);
-    console.log(speed);
-  }
-  if (evt.key == 'ArrowUp') {
-    if (!interval) {
-      permuteBlocks();
-    }
   }
 }
 
-canvas.addEventListener('keydown', onKey);
-canvas.addEventListener('wheel', onWheel);
-canvas.addEventListener('click', onClick);
-canvas.addEventListener('contextmenu', onContextMenu);
-window.addEventListener('resize', onResize);
+function speedUp() {
+  speed *= 0.5;
+  clearInterval(interval);
+  interval = setInterval(permuteBlocks, speed);
+}
+
+function slowDown() {
+  speed *= 2;
+  clearInterval(interval);
+  interval = setInterval(permuteBlocks, speed);
+}
+
+function step() {
+  if (interval) {
+    clearInterval(interval);
+  }
+  permuteBlocks();
+}
+
+
+const inputHandler = new InputHandler(canvas, {
+  pause,
+  speedUp,
+  slowDown,
+  step,
+  placeCell,
+  pan,
+  zoom,
+  redraw: () => grid.draw(currentBlocks),
+});
