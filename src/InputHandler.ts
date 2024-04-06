@@ -5,6 +5,7 @@ interface Actions {
   slowDown: () => void;
   step: () => void;
   placeCell: (alive: boolean, x: number, y: number) => void;
+  placeCellLine: (alive: boolean, x1: number, y1: number, x2: number, y2: number) => void;
   pan: (dx: number, dy: number) => void;
   zoom: (x: number, y: number, dz: number) => void;
   redraw: () => void;
@@ -16,6 +17,7 @@ export default class InputHandler {
   private slowDown: () => void;
   private step: () => void;
   private placeCell: (alive: boolean, x: number, y: number) => void;
+  private placeCellLine: (alive: boolean, x1: number, y1: number, x2: number, y2: number) => void;
   private pan: (dx: number, dy: number) => void;
   private zoom: (x: number, y: number, dz: number) => void;
   private redraw: () => void;
@@ -27,7 +29,7 @@ export default class InputHandler {
 
   constructor(
       canvas: HTMLCanvasElement,
-      { pause, speedUp, slowDown, step, placeCell, pan, redraw, zoom }: Actions
+      { pause, speedUp, slowDown, step, placeCell, placeCellLine, pan, redraw, zoom }: Actions
     ) {
     this.canvas = canvas;
     this.pause = pause;
@@ -35,6 +37,7 @@ export default class InputHandler {
     this.slowDown = slowDown;
     this.step = step;
     this.placeCell = placeCell;
+    this.placeCellLine = placeCellLine;
     this.pan = pan;
     this.zoom = zoom;
     this.redraw = redraw;
@@ -58,7 +61,19 @@ export default class InputHandler {
   onMouseMove(event: MouseEvent) {
     if (this.mouseIsDown) {
       if (event.buttons === 1 || event.buttons === 2) {
-        this.placeCell(event.buttons === 1, event.clientX, event.clientY);
+        if (this.previousMousePosition) {
+          this.placeCellLine(
+            event.buttons === 1,
+            this.previousMousePosition.x,
+            this.previousMousePosition.y,
+            event.clientX,
+            event.clientY,
+          );
+          this.redraw();
+        } else {
+          this.placeCell(event.buttons === 1, event.clientX, event.clientY);
+          this.redraw();
+        }
         this.redraw();
       } else if (event.buttons === 4) {
         if (this.previousMousePosition) {
@@ -68,8 +83,8 @@ export default class InputHandler {
           );
           this.redraw();
         }
-        this.previousMousePosition = { x: event.clientX, y: event.clientY };
       }
+      this.previousMousePosition = { x: event.clientX, y: event.clientY };
     }
   }
 

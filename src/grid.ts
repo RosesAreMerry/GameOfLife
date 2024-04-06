@@ -59,17 +59,6 @@ export default class Grid {
 
     const gridSize = ctx.canvas.width / this.currentZoom;
 
-    // for (let x = xOffset - gridSize; x < ctx.canvas.width + gridSize; x += gridSize) {
-    //   for (let y = yOffset - gridSize; y < ctx.canvas.height + gridSize; y += gridSize) {
-    //     if (currentBlocks[`${Math.floor(x / gridSize - this.currentX + 0.01)},${Math.floor(y / gridSize - this.currentY + 0.01)}`]) {
-    //       ctx.fillStyle = 'white';
-    //       ctx.moveTo(x, y);
-    //       ctx.fillRect(x, y, gridSize, gridSize);
-    //       ctx.strokeRect(x, y, gridSize, gridSize);
-    //     }
-    //   }
-    // }
-
     for (const [key, value] of Object.entries(currentBlocks)) {
       const [x, y] = key.split(',').map(Number);
       const xCoord = (x + this.currentX) * gridSize;

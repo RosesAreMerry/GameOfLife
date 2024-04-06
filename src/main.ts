@@ -68,6 +68,31 @@ function placeCell(alive: boolean, x: number, y: number) {
   }
 }
 
+function placeCellLine(alive: boolean, x1: number, y1: number, x2: number, y2: number) {
+  const gridSize = ctx.canvas.width / grid.currentZoom;
+
+  const xBlock1 = Math.floor((x1 / gridSize - grid.currentX + 0.01));
+  const yBlock1 = Math.floor((y1 / gridSize - grid.currentY + 0.01));
+
+  const xBlock2 = Math.floor((x2 / gridSize - grid.currentX + 0.01));
+  const yBlock2 = Math.floor((y2 / gridSize - grid.currentY + 0.01));
+
+  const dx = xBlock2 - xBlock1;
+  const dy = yBlock2 - yBlock1;
+
+  const steps = Math.max(Math.abs(dx), Math.abs(dy));
+
+  for (let i = 0; i < steps; i++) {
+    const x = Math.floor(xBlock1 + (dx * i / steps));
+    const y = Math.floor(yBlock1 + (dy * i / steps));
+
+    if (alive) {
+      currentBlocks[`${x},${y}`] = true;
+    } else {
+      delete currentBlocks[`${x},${y}`];
+    }
+  }
+}
 
 function permuteBlocks() {
   currentBlocks = permute(currentBlocks);
@@ -112,6 +137,7 @@ const inputHandler = new InputHandler(canvas, {
   slowDown,
   step,
   placeCell,
+  placeCellLine,
   pan,
   zoom,
   redraw: () => grid.draw(currentBlocks),
