@@ -24,21 +24,27 @@ function onWheel(event: WheelEvent) {
     return;
   }
 
-  if (grid.currentZoom > 300) {
-    grid.currentZoom = 300;
+  if (grid.currentZoom > 1000) {
+    grid.currentZoom = 1000;
     grid.draw(currentBlocks);
     return;
   }
   
-  const centerX = event.clientX;
-  const centerY = event.clientY;
+  const mouseX = event.clientX;
+  const mouseY = event.clientY;
 
-  const xBias = centerX / canvas.width;
-  const yBias = centerY / canvas.height;
+
+  const xBias = mouseX / canvas.width;
+  const yBias = mouseY / canvas.height;
+
+  // Since the zoom is done in scale with x, we need to adjust the y value to keep the zoom centered
+  const yAdjustment = canvas.height / canvas.width;
+
+  console.log(yAdjustment);
 
 
   const xTravel = scrollTravel * xBias;
-  const yTravel = scrollTravel * yBias;
+  const yTravel = scrollTravel * yBias * yAdjustment;
 
   grid.currentX += xTravel;
   grid.currentY += yTravel;

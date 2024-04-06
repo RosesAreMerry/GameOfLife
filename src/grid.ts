@@ -1,10 +1,10 @@
-//** Simple way of drawing a uniform grid on screen */
+//** Class responsible for drawing the infinite grid and cells */
 export default class Grid {
   context: CanvasRenderingContext2D;
 
-  currentX: number = 0.9;
-  currentY: number = 0.9;
-  currentZoom: number = 10;
+  currentX: number = 0;
+  currentY: number = 0;
+  currentZoom: number = 20;
 
   constructor(context: CanvasRenderingContext2D) {
     this.context = context;
@@ -17,7 +17,7 @@ export default class Grid {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.beginPath();
     ctx.strokeStyle = 'grey';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 20 / this.currentZoom;
 
     
     // the width of each grid cell
