@@ -82,7 +82,7 @@ function placeCellLine(alive: boolean, x1: number, y1: number, x2: number, y2: n
 
   const steps = Math.max(Math.abs(dx), Math.abs(dy));
 
-  for (let i = 0; i < steps; i++) {
+  for (let i = 0; i <= steps; i++) {
     const x = Math.floor(xBlock1 + (dx * i / steps));
     const y = Math.floor(yBlock1 + (dy * i / steps));
 
