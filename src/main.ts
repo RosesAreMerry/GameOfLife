@@ -9,6 +9,8 @@ const canvas = document.getElementById('gameWorld') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
 ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
+ctx.imageSmoothingEnabled = false;
+
 const grid = new Grid(ctx);
 
 
@@ -22,13 +24,11 @@ function zoom(x: number, y: number, dz: number) {
 
   if (grid.currentZoom < 10) {
     grid.currentZoom = 10;
-    grid.draw(currentBlocks);
     return;
   }
 
   if (grid.currentZoom > 1000) {
     grid.currentZoom = 1000;
-    grid.draw(currentBlocks);
     return;
   }
   
@@ -94,8 +94,14 @@ function placeCellLine(alive: boolean, x1: number, y1: number, x2: number, y2: n
   }
 }
 
+const permuteWorker = new Worker('worker.js');
+
 function permuteBlocks() {
-  currentBlocks = permute(currentBlocks);
+  permuteWorker.postMessage(currentBlocks);
+}
+
+permuteWorker.onmessage = function(e) {
+  currentBlocks = e.data;
   grid.draw(currentBlocks);
 }
 
