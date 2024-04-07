@@ -1,5 +1,8 @@
 # Conway's Game of Life
 A website playground for Conway's Game of Life featuring an infinite grid, programmed in TypeScript.
+
+Try it out at:
+https://rosesaremerry.github.io/GameOfLife/
 ### Controls
 | Key          | Effect             |
 | ------------ | ------------------ |
