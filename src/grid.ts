@@ -6,10 +6,6 @@ export default class Grid {
   currentY: number = 0;
   currentZoom: number = 20;
 
-  lastX: number = this.currentX;
-  lastY: number = this.currentY;
-  lastZoom: number = this.currentZoom;
-
   get gridSize() {
     return this.context.canvas.width / this.currentZoom;
   }
@@ -21,9 +17,6 @@ export default class Grid {
   }
 
   draw(currentBlocks: CellMap) {
-    if (this.currentX === this.lastX && this.currentY === this.lastY && this.currentZoom === this.lastZoom && currentBlocks === this.lastBlocks) {
-      return;
-    }
     this.drawGrid();
     this.drawBlocks(currentBlocks);
   }
