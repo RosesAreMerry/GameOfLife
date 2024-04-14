@@ -1,7 +1,7 @@
-import { Map } from './grid';
+import { CellMap } from './grid';
 
-export default function permute(blocks: Map) {
-  const newBlocks: Map = {};
+export default function permute(blocks: CellMap) {
+  const newBlocks: CellMap = {};
   for (const key in blocks) {
     const coord = key.split(",").map((s) => Number(s)) as [number, number];
 
@@ -34,7 +34,7 @@ function getAdjacentCoords(coord: [number, number]): [number, number][] {
   return adjacents
 }
 
-function alive(coord: [number, number], blocks: Map, isAlive = false) {
+function alive(coord: [number, number], blocks: CellMap, isAlive = false) {
   const adjacents = getAdjacentCoords(coord);
   const surroundings = adjacents.map((a) => !!blocks[`${a[0]},${a[1]}`]).filter((a) => a).length
   if (isAlive) {

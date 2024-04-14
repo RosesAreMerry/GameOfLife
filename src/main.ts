@@ -1,5 +1,5 @@
 import InputHandler from "./inputHandler";
-import Grid, { Map } from "./grid";
+import Grid, { CellMap } from "./grid";
 import permute from "./permute";
 
 const scrollScale = 0.01;
@@ -13,16 +13,13 @@ const grid = new Grid(ctx);
 
 // add coord display
 canvas.addEventListener('mousemove', (e) => {
-  const gridSize = ctx.canvas.width / grid.currentZoom;
+  const [gridX, gridY] = grid.getGridCoord(e.offsetX, e.offsetY);
 
-  const xBlock = Math.floor((e.offsetX / gridSize - grid.currentX + 0.01));
-  const yBlock = Math.floor((e.offsetY / gridSize - grid.currentY + 0.01));
-
-  document.getElementById('coords').innerText = `(${xBlock}, ${yBlock})`;
+  document.getElementById('coords').innerText = `(${gridX}, ${gridY})`;
 });
 
 
-let currentBlocks: Map = {};
+let currentBlocks: CellMap = {};
 
 grid.draw(currentBlocks);
 
@@ -60,41 +57,33 @@ function zoom(x: number, y: number, dz: number) {
 }
 
 function pan(dx: number, dy: number) {
-  const gridSize = ctx.canvas.width / grid.currentZoom;
-  grid.currentX += dx / gridSize;
-  grid.currentY += dy / gridSize;
+  grid.currentX += dx / grid.gridSize;
+  grid.currentY += dy / grid.gridSize;
 }
 
 function placeCell(alive: boolean, x: number, y: number) {
-  const gridSize = ctx.canvas.width / grid.currentZoom;
-
-  const xBlock = Math.floor((x / gridSize - grid.currentX + 0.01));
-  const yBlock = Math.floor((y / gridSize - grid.currentY + 0.01));
+  const [gridX, gridY] = grid.getGridCoord(x, y);
 
   if (alive) {
-    currentBlocks[`${xBlock},${yBlock}`] = true;
+    currentBlocks[`${gridX},${gridY}`] = true;
   } else {
-    delete currentBlocks[`${xBlock},${yBlock}`];
+    delete currentBlocks[`${gridX},${gridY}`];
   }
 }
 
 function placeCellLine(alive: boolean, x1: number, y1: number, x2: number, y2: number) {
-  const gridSize = ctx.canvas.width / grid.currentZoom;
+  const [gridX1, gridY1] = grid.getGridCoord(x1, y1);
 
-  const xBlock1 = Math.floor((x1 / gridSize - grid.currentX + 0.01));
-  const yBlock1 = Math.floor((y1 / gridSize - grid.currentY + 0.01));
-
-  const xBlock2 = Math.floor((x2 / gridSize - grid.currentX + 0.01));
-  const yBlock2 = Math.floor((y2 / gridSize - grid.currentY + 0.01));
-
-  const dx = xBlock2 - xBlock1;
-  const dy = yBlock2 - yBlock1;
+  const [gridX2, gridY2] = grid.getGridCoord(x2, y2);
+  
+  const dx = gridX2 - gridX1;
+  const dy = gridY2 - gridY1;
 
   const steps = Math.max(Math.abs(dx), Math.abs(dy));
 
   for (let i = 0; i <= steps; i++) {
-    const x = Math.floor(xBlock1 + (dx * i / steps));
-    const y = Math.floor(yBlock1 + (dy * i / steps));
+    const x = Math.floor(gridX1 + (dx * i / steps));
+    const y = Math.floor(gridY1 + (dy * i / steps));
 
     if (alive) {
       currentBlocks[`${x},${y}`] = true;

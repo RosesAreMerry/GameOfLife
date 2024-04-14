@@ -10,13 +10,17 @@ export default class Grid {
   lastY: number = this.currentY;
   lastZoom: number = this.currentZoom;
 
-  lastBlocks: Map = {};
+  get gridSize() {
+    return this.context.canvas.width / this.currentZoom;
+  }
+
+  lastBlocks: CellMap = {};
 
   constructor(context: CanvasRenderingContext2D) {
     this.context = context;
   }
 
-  draw(currentBlocks: Map) {
+  draw(currentBlocks: CellMap) {
     if (this.currentX === this.lastX && this.currentY === this.lastY && this.currentZoom === this.lastZoom && currentBlocks === this.lastBlocks) {
       return;
     }
@@ -32,32 +36,26 @@ export default class Grid {
     ctx.strokeStyle = 'grey';
     ctx.lineWidth = 20 / this.currentZoom;
 
-    
-    // the width of each grid cell
-    const gridSize = ctx.canvas.width / this.currentZoom;
+    const xOffset = (this.currentX % 1) * this.gridSize;
+    const yOffset = (this.currentY % 1) * this.gridSize;
 
-    const xOffset = (this.currentX % 1) * gridSize;
-    const yOffset = (this.currentY % 1) * gridSize;
-
-    for (let x = xOffset; x < ctx.canvas.width; x += gridSize) {
+    for (let x = xOffset; x < ctx.canvas.width; x += this.gridSize) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, ctx.canvas.height);
 
     }
-    for (let y = yOffset; y < ctx.canvas.height; y += gridSize) {
+    for (let y = yOffset; y < ctx.canvas.height; y += this.gridSize) {
       ctx.moveTo(0, y);
       ctx.lineTo(ctx.canvas.width, y);
     }
     ctx.stroke();
   }
 
-  drawBlocks(currentBlocks: Map) {
+  drawBlocks(currentBlocks: CellMap) {
     const ctx = this.context;
 
     ctx.beginPath();
     ctx.strokeStyle = 'white';
-
-    const gridSize = ctx.canvas.width / this.currentZoom;
 
     // Blocks shouldn't have grid lines around them, so we need to expand the blocks by a little bit
     const bloom = (25 / this.currentZoom);
@@ -68,7 +66,7 @@ export default class Grid {
 
       ctx.fillStyle = 'white';
       ctx.moveTo(screenX, screenY);
-      ctx.fillRect(screenX - bloom, screenY - bloom, gridSize +  2 * bloom, gridSize + 2 * bloom);
+      ctx.fillRect(screenX - bloom, screenY - bloom, this.gridSize +  2 * bloom, this.gridSize + 2 * bloom);
     }
 
     ctx.fill();
@@ -81,10 +79,8 @@ export default class Grid {
    * @returns The x and y coordinates of the grid cell that the screen coordinates are in.
    */ 
   getGridCoord(screenX: number, screenY: number): [number, number] {
-    const gridSize = this.context.canvas.width / this.currentZoom;
-
-    const xBlock = Math.floor((screenX / gridSize - this.currentX + 0.01));
-    const yBlock = Math.floor((screenY / gridSize - this.currentY + 0.01));
+    const xBlock = Math.floor((screenX / this.gridSize - this.currentX + 0.01));
+    const yBlock = Math.floor((screenY / this.gridSize - this.currentY + 0.01));
 
     return [xBlock, yBlock];
   }
@@ -96,13 +92,11 @@ export default class Grid {
    * @returns The x and y coordinates of the screen cell that the grid coordinates are in.
    */
   getScreenCoord(gridX: number, gridY: number): [number, number] {
-    const gridSize = this.context.canvas.width / this.currentZoom;
-
-    const xCoord = (gridX + this.currentX) * gridSize;
-    const yCoord = (gridY + this.currentY) * gridSize;
+    const xCoord = (gridX + this.currentX) * this.gridSize;
+    const yCoord = (gridY + this.currentY) * this.gridSize;
 
     return [xCoord, yCoord];
   }
 }
 
-export type Map = {[key: `${number},${number}`]: boolean};
+export type CellMap = {[key: `${number},${number}`]: boolean};
