@@ -11,6 +11,16 @@ ctx.canvas.width = window.innerWidth;
 ctx.canvas.height = window.innerHeight;
 const grid = new Grid(ctx);
 
+// add coord display
+canvas.addEventListener('mousemove', (e) => {
+  const gridSize = ctx.canvas.width / grid.currentZoom;
+
+  const xBlock = Math.floor((e.offsetX / gridSize - grid.currentX + 0.01));
+  const yBlock = Math.floor((e.offsetY / gridSize - grid.currentY + 0.01));
+
+  document.getElementById('coords').innerText = `(${xBlock}, ${yBlock})`;
+});
+
 
 let currentBlocks: Map = {};
 

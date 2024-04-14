@@ -59,19 +59,49 @@ export default class Grid {
 
     const gridSize = ctx.canvas.width / this.currentZoom;
 
-    for (const [key, value] of Object.entries(currentBlocks)) {
-      const [x, y] = key.split(',').map(Number);
-      const xCoord = (x + this.currentX) * gridSize;
-      const yCoord = (y + this.currentY) * gridSize;
+    // Blocks shouldn't have grid lines around them, so we need to expand the blocks by a little bit
+    const bloom = (25 / this.currentZoom);
+
+    for (const key of Object.keys(currentBlocks)) {
+      const [gridX, gridY] = key.split(',').map(Number);
+      const [screenX, screenY] = this.getScreenCoord(gridX, gridY);
 
       ctx.fillStyle = 'white';
-      ctx.moveTo(xCoord, yCoord);
-      ctx.fillRect(xCoord, yCoord, gridSize, gridSize);
-      ctx.strokeRect(xCoord, yCoord, gridSize, gridSize);
+      ctx.moveTo(screenX, screenY);
+      ctx.fillRect(screenX - bloom, screenY - bloom, gridSize +  2 * bloom, gridSize + 2 * bloom);
     }
 
     ctx.fill();
-    ctx.stroke();
+  }
+
+  /**
+   * A function that takes screen coordinates and returns the grid coordinates that the screen coordinates are in.
+   * @param screenX The x coordinate relative to the canvas
+   * @param screenY The y coordinate relative to the canvas
+   * @returns The x and y coordinates of the grid cell that the screen coordinates are in.
+   */ 
+  getGridCoord(screenX: number, screenY: number): [number, number] {
+    const gridSize = this.context.canvas.width / this.currentZoom;
+
+    const xBlock = Math.floor((screenX / gridSize - this.currentX + 0.01));
+    const yBlock = Math.floor((screenY / gridSize - this.currentY + 0.01));
+
+    return [xBlock, yBlock];
+  }
+
+  /**
+   * A function that takes grid coordinates and returns the screen coordinates that the grid coordinates are in.
+   * @param x The x coordinate of the grid cell
+   * @param y The y coordinate of the grid cell
+   * @returns The x and y coordinates of the screen cell that the grid coordinates are in.
+   */
+  getScreenCoord(gridX: number, gridY: number): [number, number] {
+    const gridSize = this.context.canvas.width / this.currentZoom;
+
+    const xCoord = (gridX + this.currentX) * gridSize;
+    const yCoord = (gridY + this.currentY) * gridSize;
+
+    return [xCoord, yCoord];
   }
 }
 
